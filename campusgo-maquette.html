@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusGo — Guidage sur le campus UAC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16241E;
+    --ink-soft:#3C4A44;
+    --paper:#F6F5F0;
+    --paper-alt:#EFEBE0;
+    --surface:#FFFFFF;
+    --forest:#1F5C46;
+    --forest-deep:#153E30;
+    --amber:#E4A94A;
+    --clay:#B8452A;
+    --sky:#3D7EA6;
+    --route-blue:#2954D9;
+    --route-orange:#FF7A33;
+    --line:#DCD6C6;
+    --radius-s:6px;
+    --radius-m:10px;
+    --shadow:0 1px 2px rgba(22,36,30,.06), 0 8px 24px -12px rgba(22,36,30,.18);
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--font-body);
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:var(--font-display);margin:0;color:var(--ink);letter-spacing:-.01em;}
+  p{margin:0;}
+  a{color:inherit;}
+  button{font-family:var(--font-body);cursor:pointer;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
+
+  /* ---------- Nav ---------- */
+  .topnav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(246,245,240,.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topnav .wrap{display:flex;align-items:center;justify-content:space-between;height:66px;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:18px;cursor:pointer;}
+  .brand svg{flex:none;}
+  .navlinks{display:flex;align-items:center;gap:4px;}
+  .navlinks button{
+    background:none;border:none;padding:9px 14px;border-radius:999px;
+    font-size:14px;font-weight:500;color:var(--ink-soft);
+  }
+  .navlinks button:hover{background:var(--paper-alt);color:var(--ink);}
+  .navlinks button.active{background:var(--forest);color:#fff;}
+  .navright{display:flex;align-items:center;gap:10px;}
+  .langtoggle{
+    display:flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--surface);
+  }
+  .langtoggle button{
+    border:none;background:none;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600;color:var(--ink-soft);
+  }
+  .langtoggle button.active{background:var(--ink);color:#fff;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 20px;border-radius:var(--radius-s);border:none;font-weight:600;font-size:14px;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--forest);color:#fff;}
+  .btn-primary:hover{background:var(--forest-deep);}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--ink);}
+  .btn-amber{background:var(--amber);color:var(--forest-deep);}
+  .btn-amber:hover{filter:brightness(.96);}
+  .btn-block{width:100%;}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:76px 0 60px;}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;}
+  .eyebrow-line{display:flex;align-items:center;gap:10px;margin-bottom:18px;color:var(--forest);font-weight:600;font-size:13px;}
+  .eyebrow-line .dash{width:26px;height:1px;background:var(--forest);}
+  .hero h1{font-size:44px;line-height:1.08;max-width:560px;}
+  .hero p.lead{margin-top:18px;font-size:17px;color:var(--ink-soft);max-width:480px;}
+  .hero-actions{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap;}
+  .hero-note{margin-top:16px;font-size:13px;color:var(--ink-soft);}
+
+  .map-art{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);box-shadow:var(--shadow);padding:22px;}
+  .map-art svg{width:100%;height:auto;display:block;}
+
+  /* ---------- Sections ---------- */
+  section{padding:64px 0;}
+  .section-head{max-width:560px;margin-bottom:38px;}
+  .section-head .kicker{color:var(--forest);font-weight:600;font-size:13px;letter-spacing:.02em;margin-bottom:8px;display:block;}
+  .section-head h2{font-size:30px;}
+  .section-head p{margin-top:12px;color:var(--ink-soft);font-size:15px;}
+
+  .steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .step-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);padding:24px;}
+  .step-num{font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--forest);border:1px solid var(--forest);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+  .step-card h3{font-size:17px;margin-bottom:8px;}
+  .step-card p{font-size:14px;color:var(--ink-soft);}
+
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius-m);overflow:hidden;}
+  .feature{background:var(--surface);padding:26px;}
+  .feature .ficon{margin-bottom:14px;}
+  .feature h3{font-size:16px;margin-bottom:6px;}
+  .feature p{font-size:14px;color:var(--ink-soft);}
+
+  .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .price-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);padding:26px;display:flex;flex-direction:column;gap:14px;}
+  .price-card.highlight{border-color:var(--forest);box-shadow:0 0 0 1px var(--forest);}
+  .price-card .tag{align-self:flex-start;background:var(--paper-alt);color:var(--forest-deep);font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;}
+  .price-card h3{font-size:17px;}
+  .price-card .amount{font-family:var(--font-display);font-size:30px;}
+  .price-card .amount span{font-size:13px;font-weight:500;color:var(--ink-soft);font-family:var(--font-body);}
+  .price-card ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--ink-soft);}
+  .price-card li{display:flex;gap:8px;align-items:flex-start;}
+  .price-card li svg{flex:none;margin-top:2px;}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  footer .fdim{color:var(--ink-soft);font-size:13px;}
+
+  /* ---------- Auth ---------- */
+  .auth-wrap{min-height:calc(100vh - 66px);display:flex;align-items:center;justify-content:center;padding:60px 24px;}
+  .auth-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);box-shadow:var(--shadow);padding:32px;}
+  .auth-tabs{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:26px;}
+  .auth-tabs button{flex:1;border:none;background:none;padding:9px 0;border-radius:999px;font-weight:600;font-size:13.5px;color:var(--ink-soft);}
+  .auth-tabs button.active{background:var(--forest);color:#fff;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  .field input{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:var(--radius-s);font-size:14px;font-family:var(--font-body);background:var(--paper);}
+  .field input:focus{outline:2px solid var(--forest);outline-offset:1px;background:#fff;}
+  .auth-form{display:none;}
+  .auth-form.active{display:block;}
+  .auth-foot{margin-top:16px;font-size:13px;color:var(--ink-soft);text-align:center;}
+  .auth-foot button{background:none;border:none;color:var(--forest);font-weight:600;font-size:13px;padding:0;}
+
+  /* ---------- App view ---------- */
+  .appbar{padding:26px 0 16px;}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);box-shadow:var(--shadow);}
+  .search-row{display:flex;gap:10px;position:relative;max-width:640px;}
+  .search-row input{flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius-s);font-size:14.5px;font-family:var(--font-body);}
+  .search-row input:focus{outline:2px solid var(--forest);outline-offset:1px;}
+  .suggest-list{position:absolute;top:calc(100% + 6px);left:0;right:60px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s);box-shadow:var(--shadow);z-index:400;max-height:220px;overflow:auto;display:none;}
+  .suggest-list.show{display:block;}
+  .suggest-item{padding:10px 14px;font-size:14px;cursor:pointer;display:flex;justify-content:space-between;}
+  .suggest-item:hover{background:var(--paper-alt);}
+  .free-counter{margin-top:12px;font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;}
+  .dot-row{display:flex;gap:4px;}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line);}
+  .dot.used{background:var(--clay);}
+
+  .empty-state{padding:60px 20px;text-align:center;color:var(--ink-soft);font-size:14px;}
+  .empty-state svg{margin-bottom:12px;}
+
+  /* ---------- Map stage: full-bleed dark self-drawn campus map (no external tiles) ---------- */
+  .map-stage{position:relative;width:100%;height:600px;border-radius:var(--radius-m);overflow:hidden;background:#10131A;box-shadow:var(--shadow);}
+  #campus-svg{position:absolute;inset:0;width:100%;height:100%;display:block;}
+
+  .place-tooltip{font-family:var(--font-body);font-size:12px;font-weight:600;}
+
+  /* floating instruction card, bottom-left, over the map */
+  .instr-float{
+    position:absolute;left:18px;bottom:18px;z-index:500;width:340px;
+    background:rgba(16,19,24,.95);backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-m);
+    color:#F2F0EA;overflow:hidden;box-shadow:0 12px 30px -10px rgba(0,0,0,.6);
+  }
+  .instr-float .instr-top{padding:16px 18px 14px;border-left:3px solid var(--route-orange);}
+  .instr-float .instr-title{font-family:var(--font-display);font-size:16px;font-weight:600;line-height:1.35;}
+  .instr-float .instr-sub{margin-top:6px;font-size:12.5px;color:#B7BDC6;}
+  .instr-float .instr-stats{display:flex;gap:16px;padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);font-size:12px;color:#B7BDC6;}
+  .instr-float .instr-stats b{color:#fff;font-weight:600;}
+  .instr-float .waiting-row{display:flex;align-items:center;gap:8px;padding:11px 18px;border-top:1px solid rgba(255,255,255,.08);font-size:12.5px;color:#FFC499;}
+  .walk-dot{width:8px;height:8px;border-radius:50%;background:var(--route-orange);animation:pulseDot 1.1s infinite ease-in-out;flex:none;}
+  @keyframes pulseDot{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+  .instr-float .gps-row{display:flex;align-items:center;gap:8px;padding:10px 18px 14px;font-size:11.5px;color:#9AA0A8;}
+  .instr-float .gps-row input{accent-color:var(--route-orange);}
+  .progress-dots{display:flex;gap:4px;padding:0 18px 14px;}
+  .progress-dots span{height:4px;flex:1;border-radius:2px;background:rgba(255,255,255,.16);}
+  .progress-dots span.done{background:var(--route-orange);}
+
+  /* floating steps list, top-right over the map */
+  .steps-float{
+    position:absolute;right:18px;top:18px;z-index:500;width:250px;max-height:300px;
+    background:rgba(16,19,24,.95);backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-m);
+    color:#F2F0EA;overflow:hidden;display:flex;flex-direction:column;
+  }
+  .steps-float .steps-head{padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:.05em;color:#9AA0A8;border-bottom:1px solid rgba(255,255,255,.08);}
+  .steps-float .steps-list{overflow-y:auto;padding:6px;}
+  .steps-float .step-row{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:8px;font-size:12.5px;color:#C7CBD1;}
+  .steps-float .step-row.current{background:rgba(255,122,51,.14);color:#fff;}
+  .steps-float .step-row.done{opacity:.45;}
+  .steps-float .step-row .turn-icon{flex:none;width:16px;height:16px;color:var(--route-orange);margin-top:1px;}
+
+  /* photo reveal card, appears when reaching a landmark or destination */
+  .photo-card{
+    position:absolute;top:18px;left:50%;transform:translate(-50%,-14px);z-index:600;
+    width:280px;background:rgba(16,19,24,.97);border:1px solid rgba(255,255,255,.1);
+    border-radius:var(--radius-m);overflow:hidden;box-shadow:0 16px 34px -12px rgba(0,0,0,.7);
+    opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;
+  }
+  .photo-card.show{opacity:1;transform:translate(-50%,0);}
+  .photo-card .photo-visual{height:120px;background:linear-gradient(135deg,#1B7F6E,#12151A);display:flex;align-items:center;justify-content:center;}
+  .photo-card .photo-caption{padding:12px 14px;color:#F2F0EA;}
+  .photo-card .photo-caption .pc-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--route-orange);font-weight:700;}
+  .photo-card .photo-caption .pc-name{font-family:var(--font-display);font-size:15px;margin-top:3px;}
+
+  @media (max-width:860px){
+    .map-stage{height:560px;}
+    .instr-float{width:calc(100% - 36px);}
+    .steps-float{display:none;}
+    .photo-card{width:calc(100% - 36px);}
+  }
+
+  /* ---------- Dashboard ---------- */
+  .dash-head{padding:34px 0 6px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;}
+  .dash-head h1{font-size:26px;}
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:26px 0;}
+  .stat-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-m);padding:20px;}
+  .stat-card .label{font-size:12.5px;color:var(--ink-soft);font-weight:600;}
+  .stat-card .val{font-family:var(--font-display);font-size:28px;margin-top:6px;}
+  .stat-card .sub{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+
+  .dash-lower{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;padding-bottom:60px;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft);padding:10px 12px;border-bottom:1px solid var(--line);}
+  td{padding:12px;border-bottom:1px solid var(--line);}
+  .pack-box{padding:22px;}
+  .pack-box h3{font-size:16px;margin-bottom:4px;}
+  .pack-box p{font-size:13px;color:var(--ink-soft);margin-bottom:16px;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(22,36,30,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .modal-backdrop.show{display:flex;}
+  .modal{background:var(--surface);border-radius:var(--radius-m);max-width:760px;width:100%;padding:32px;position:relative;max-height:90vh;overflow:auto;}
+  .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;color:var(--ink-soft);}
+  .modal h2{font-size:22px;margin-bottom:6px;}
+  .modal > p{color:var(--ink-soft);font-size:14px;margin-bottom:24px;}
+  .pay-note{margin-top:18px;font-size:12.5px;color:var(--ink-soft);background:var(--paper-alt);padding:12px 14px;border-radius:var(--radius-s);display:none;}
+  .pay-note.show{display:block;}
+
+  @media (max-width:860px){
+    .hero-grid,.dash-lower{grid-template-columns:1fr;}
+    .steps3,.features,.pricing-grid,.stat-row{grid-template-columns:1fr;}
+    .navlinks{display:none;}
+    .hero h1{font-size:32px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<div class="topnav">
+  <div class="wrap">
+    <div class="brand" onclick="showView('home')">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="13" stroke="#1F5C46" stroke-width="2"/><path d="M15 6 L18 15 L15 24 L12 15 Z" fill="#E4A94A"/><circle cx="15" cy="15" r="2" fill="#16241E"/></svg>
+      <span>CampusGo</span>
+    </div>
+    <div class="navlinks">
+      <button data-i18n="nav.home" onclick="showView('home')" class="active" id="nav-home">Accueil</button>
+      <button data-i18n="nav.app" onclick="showView('app')" id="nav-app">Itinéraire</button>
+      <button data-i18n="nav.dashboard" onclick="showView('dashboard')" id="nav-dashboard">Tableau de bord</button>
+    </div>
+    <div class="navright">
+      <div class="langtoggle">
+        <button id="lang-fr" class="active" onclick="setLang('fr')">FR</button>
+        <button id="lang-en" onclick="setLang('en')">EN</button>
+      </div>
+      <button class="btn btn-ghost" data-i18n="nav.login" onclick="showView('auth')">Connexion</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HOME ===================== -->
+<div class="view active" id="view-home">
+  <div class="hero wrap hero-grid">
+    <div>
+      <div class="eyebrow-line"><span class="dash"></span><span data-i18n="hero.eyebrow">Guidage du campus de l'UAC</span></div>
+      <h1 data-i18n="hero.title">Trouvez votre chemin sur le campus, pas à pas.</h1>
+      <p class="lead" data-i18n="hero.lead">Entrez simplement le lieu où vous voulez aller — EPAC, bibliothèque, amphithéâtre, restaurant universitaire — et laissez votre guide vous accompagner jusqu'à destination.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" data-i18n="hero.cta1" onclick="showView('app')">Chercher un itinéraire</button>
+        <button class="btn btn-ghost" data-i18n="hero.cta2" onclick="showView('auth')">Créer un compte</button>
+      </div>
+      <p class="hero-note" data-i18n="hero.note">Les 2 premières recherches sont gratuites.</p>
+    </div>
+    <div class="map-art">
+      <svg viewBox="0 0 380 300">
+        <rect x="0" y="0" width="380" height="300" fill="#F6F5F0"/>
+        <path d="M30 250 C 90 230, 120 180, 170 170 S 260 130, 300 60" stroke="#3D7EA6" stroke-width="3" stroke-dasharray="2 10" stroke-linecap="round" fill="none"/>
+        <circle cx="30" cy="250" r="7" fill="#1F5C46"/>
+        <text x="42" y="254" font-family="Inter" font-size="11" fill="#3C4A44">Vous</text>
+        <circle cx="170" cy="170" r="6" fill="#E4A94A"/>
+        <text x="180" y="174" font-family="Inter" font-size="11" fill="#3C4A44">EPAC</text>
+        <path d="M296 66 L300 60 L306 66" stroke="#B8452A" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="300" cy="60" r="7" fill="#B8452A"/>
+        <text x="270" y="46" font-family="Space Grotesk" font-size="12" font-weight="700" fill="#16241E">Destination</text>
+        <g opacity=".5">
+          <circle cx="330" cy="230" r="30" fill="none" stroke="#DCD6C6"/>
+          <line x1="330" y1="205" x2="330" y2="255" stroke="#DCD6C6"/>
+          <line x1="305" y1="230" x2="355" y2="230" stroke="#DCD6C6"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <section class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-i18n="how.kicker">Comment ça marche</span>
+      <h2 data-i18n="how.title">Trois étapes, aucun détour.</h2>
+    </div>
+    <div class="steps3">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3 data-i18n="how.s1.title">Indiquez votre destination</h3>
+        <p data-i18n="how.s1.body">Tapez le nom du lieu — une faculté, un amphi, la bibliothèque — et sélectionnez-le dans la liste.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3 data-i18n="how.s2.title">Recevez l'itinéraire</h3>
+        <p data-i18n="how.s2.body">Le chemin le plus court s'affiche sur le plan, avec chaque virage indiqué clairement.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3 data-i18n="how.s3.title">Suivez votre guide</h3>
+        <p data-i18n="how.s3.body">Votre avatar vous annonce chaque étape en temps réel, jusqu'à l'arrivée.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-i18n="feat.kicker">Fonctionnalités</span>
+      <h2 data-i18n="feat.title">Un compagnon de route pour le campus.</h2>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="ficon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#1F5C46" stroke-width="1.6"/><path d="M12 5v14M5 12h14" stroke="#1F5C46" stroke-width="1.6"/></svg></div>
+        <h3 data-i18n="feat.a.title">Avatar guide vocal</h3>
+        <p data-i18n="feat.a.body">Un personnage vous indique où tourner et vous situe à chaque repère du campus.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 20 L4 6 L12 3 L20 6 L20 20 L12 17 L4 20 Z" stroke="#1F5C46" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+        <h3 data-i18n="feat.b.title">Plan interactif</h3>
+        <p data-i18n="feat.b.body">Visualisez le chemin le plus court entre votre position et votre destination.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#1F5C46" stroke-width="1.6"/><path d="M3 9h18M8 4v5" stroke="#1F5C46" stroke-width="1.6"/></svg></div>
+        <h3 data-i18n="feat.c.title">Historique personnel</h3>
+        <p data-i18n="feat.c.body">Retrouvez vos anciennes recherches et itinéraires depuis votre tableau de bord.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="pricing">
+    <div class="section-head">
+      <span class="kicker" data-i18n="price.kicker">Tarifs</span>
+      <h2 data-i18n="price.title">Simple, à la recherche.</h2>
+      <p data-i18n="price.body">Deux recherches gratuites, puis choisissez un pack pour continuer.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <span class="tag" data-i18n="price.free.tag">Découverte</span>
+        <h3 data-i18n="price.free.title">Gratuit</h3>
+        <div class="amount">0 <span data-i18n="price.currency">FCFA</span></div>
+        <ul>
+          <li><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#1F5C46" stroke-width="2.4" fill="none"/></svg><span data-i18n="price.free.l1">2 recherches d'itinéraire</span></li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#1F5C46" stroke-width="2.4" fill="none"/></svg><span data-i18n="price.free.l2">Guide avatar inclus</span></li>
+        </ul>
+      </div>
+      <div class="price-card highlight">
+        <span class="tag" data-i18n="price.pack1.tag">Le plus choisi</span>
+        <h3 data-i18n="price.pack1.title">Pack Étudiant</h3>
+        <div class="amount">1000 <span data-i18n="price.currency">FCFA</span></div>
+        <ul>
+          <li><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#1F5C46" stroke-width="2.4" fill="none"/></svg><span data-i18n="price.pack1.l1">3 recherches supplémentaires</span></li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#1F5C46" stroke-width="2.4" fill="none"/></svg><span data-i18n="price.pack1.l2">Paiement sécurisé Chariow</span></li>
+        </ul>
+        <button class="btn btn-primary btn-block" data-i18n="price.select" onclick="showView('app')">Choisir ce pack</button>
+      </div>
+      <div class="price-card">
+        <span class="tag" data-i18n="price.pack2.tag">Semaine</span>
+        <h3 data-i18n="price.pack2.title">Pack Semaine</h3>
+        <div class="amount">2500 <span data-i18n="price.currency">FCFA</span></div>
+        <ul>
+          <li><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#1F5C46" stroke-width="2.4" fill="none"/></svg><span data-i18n="price.pack2.l1">Recherches illimitées, 7 jours</span></li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#1F5C46" stroke-width="2.4" fill="none"/></svg><span data-i18n="price.pack2.l2">Historique complet</span></li>
+        </ul>
+        <button class="btn btn-ghost btn-block" data-i18n="price.select" onclick="showView('app')">Choisir ce pack</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span class="fdim" data-i18n="footer.text">CampusGo — Maquette pour l'Université d'Abomey-Calavi</span>
+      <span class="fdim">FR / EN</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ===================== AUTH ===================== -->
+<div class="view" id="view-auth">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="active" id="tab-login" onclick="setAuthTab('login')" data-i18n="auth.tab.login">Connexion</button>
+        <button id="tab-signup" onclick="setAuthTab('signup')" data-i18n="auth.tab.signup">Inscription</button>
+      </div>
+
+      <form class="auth-form active" id="form-login" onsubmit="event.preventDefault(); showView('app');">
+        <div class="field">
+          <label data-i18n="auth.email">Adresse e-mail</label>
+          <input type="email" placeholder="prenom.nom@uac.bj" required>
+        </div>
+        <div class="field">
+          <label data-i18n="auth.password">Mot de passe</label>
+          <input type="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="auth.loginbtn">Se connecter</button>
+        <p class="auth-foot"><span data-i18n="auth.noaccount">Pas encore de compte ?</span> <button type="button" onclick="setAuthTab('signup')" data-i18n="auth.tab.signup">Inscription</button></p>
+      </form>
+
+      <form class="auth-form" id="form-signup" onsubmit="event.preventDefault(); showView('app');">
+        <div class="field">
+          <label data-i18n="auth.name">Nom complet</label>
+          <input type="text" placeholder="Ex: Aïcha Dossou" required>
+        </div>
+        <div class="field">
+          <label data-i18n="auth.email">Adresse e-mail</label>
+          <input type="email" placeholder="prenom.nom@uac.bj" required>
+        </div>
+        <div class="field">
+          <label data-i18n="auth.password">Mot de passe</label>
+          <input type="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-i18n="auth.signupbtn">Créer mon compte</button>
+        <p class="auth-foot"><span data-i18n="auth.hasaccount">Déjà un compte ?</span> <button type="button" onclick="setAuthTab('login')" data-i18n="auth.tab.login">Connexion</button></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP (recherche + itinéraire) ===================== -->
+<div class="view" id="view-app">
+  <div class="wrap appbar">
+    <h1 style="font-size:24px" data-i18n="app.title">Où voulez-vous aller ?</h1>
+    <p style="color:var(--ink-soft);margin-top:6px;font-size:14px;margin-bottom:16px" data-i18n="app.subtitle">Entrez un lieu du campus pour obtenir le chemin le plus court.</p>
+    <div class="search-row">
+      <input type="text" id="dest-input" data-i18n-ph="app.searchph" placeholder="Ex: EPAC, Bibliothèque Centrale, Amphi 1000..." oninput="renderSuggestions(this.value)" onfocus="renderSuggestions(this.value)">
+      <button class="btn btn-primary" data-i18n="app.go" onclick="startItinerary()">Itinéraire</button>
+      <div class="suggest-list" id="suggest-list"></div>
+    </div>
+    <div class="free-counter">
+      <span data-i18n="app.freeleft">Recherches gratuites restantes :</span>
+      <div class="dot-row" id="dot-row"><span class="dot"></span><span class="dot"></span></div>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding:20px 0 60px">
+    <div class="empty-state" id="guide-empty">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11Z" stroke="#8A9089" stroke-width="1.5"/><circle cx="12" cy="10" r="2.4" stroke="#8A9089" stroke-width="1.5"/></svg>
+      <p data-i18n="app.guide.empty">Choisissez une destination pour démarrer le guidage.</p>
+    </div>
+
+    <div class="map-stage" id="map-stage" style="display:none">
+      <svg id="campus-svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet"></svg>
+
+      <div class="photo-card" id="photo-card">
+        <div class="photo-visual" id="photo-visual"></div>
+        <div class="photo-caption">
+          <div class="pc-label" data-i18n="app.photolabel">VOUS ÊTES ICI</div>
+          <div class="pc-name" id="photo-name">—</div>
+        </div>
+      </div>
+
+      <div class="instr-float" id="instr-float">
+        <div class="instr-top">
+          <div class="instr-title" id="instr-title">—</div>
+          <div class="instr-sub" id="instr-sub">—</div>
+        </div>
+        <div class="instr-stats">
+          <span><b id="stat-distance">—</b></span>
+          <span><b id="stat-duration">—</b></span>
+          <span><b id="stat-steps">—</b></span>
+        </div>
+        <div class="waiting-row" id="waiting-row" style="display:none">
+          <span class="walk-dot"></span>
+          <span id="waiting-text" data-i18n="app.waiting">Avancez pour continuer votre trajet…</span>
+        </div>
+        <div class="progress-dots" id="progress-dots"></div>
+        <div class="gps-row">
+          <input type="checkbox" id="gps-toggle" checked onchange="onGpsToggle(this.checked)">
+          <label for="gps-toggle" data-i18n="app.demolabel">Mode démonstration (avance automatiquement)</label>
+        </div>
+      </div>
+
+      <div class="steps-float">
+        <div class="steps-head" data-i18n="app.detail">DÉTAIL DE L'ITINÉRAIRE</div>
+        <div class="steps-list" id="itin-steps"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div class="view" id="view-dashboard">
+  <div class="wrap dash-head">
+    <div>
+      <h1 data-i18n="dash.hello">Bonjour, Aïcha 👋</h1>
+      <p style="color:var(--ink-soft);font-size:14px;margin-top:4px" data-i18n="dash.sub">Voici un résumé de votre activité sur le campus.</p>
+    </div>
+    <button class="btn btn-primary" data-i18n="dash.newsearch" onclick="showView('app')">Nouvelle recherche</button>
+  </div>
+
+  <div class="wrap">
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="label" data-i18n="dash.stat1">Recherches ce mois</div>
+        <div class="val">7</div>
+        <div class="sub" data-i18n="dash.stat1sub">+2 depuis la semaine dernière</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="dash.stat2">Pack actif</div>
+        <div class="val" style="font-size:20px" data-i18n="dash.stat2val">Pack Étudiant</div>
+        <div class="sub" data-i18n="dash.stat2sub">2 recherches restantes</div>
+      </div>
+      <div class="stat-card">
+        <div class="label" data-i18n="dash.stat3">Destination la plus visitée</div>
+        <div class="val" style="font-size:20px">EPAC</div>
+        <div class="sub" data-i18n="dash.stat3sub">4 trajets ce mois</div>
+      </div>
+    </div>
+
+    <div class="dash-lower">
+      <div class="panel" style="padding:22px">
+        <h3 style="font-size:16px;margin-bottom:14px" data-i18n="dash.history">Historique des recherches</h3>
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="dash.th.dest">Destination</th>
+              <th data-i18n="dash.th.date">Date</th>
+              <th data-i18n="dash.th.duration">Durée</th>
+            </tr>
+          </thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+
+      <div class="panel pack-box">
+        <h3 data-i18n="dash.pack.title">Votre pack</h3>
+        <p data-i18n="dash.pack.body">Pack Étudiant — 2 recherches restantes sur 3.</p>
+        <button class="btn btn-amber btn-block" data-i18n="dash.pack.upgrade" onclick="openModal()">Changer de pack</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL PAIEMENT / PACKS ===================== -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h2 data-i18n="modal.title">Vous avez utilisé vos recherches gratuites</h2>
+    <p data-i18n="modal.body">Choisissez un pack pour continuer à obtenir vos itinéraires sur le campus.</p>
+    <div class="pricing-grid">
+      <div class="price-card highlight">
+        <span class="tag" data-i18n="price.pack1.tag">Le plus choisi</span>
+        <h3 data-i18n="price.pack1.title">Pack Étudiant</h3>
+        <div class="amount">1000 <span data-i18n="price.currency">FCFA</span></div>
+        <ul><li><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#1F5C46" stroke-width="2.4" fill="none"/></svg><span data-i18n="price.pack1.l1">3 recherches supplémentaires</span></li></ul>
+        <button class="btn btn-primary btn-block" onclick="payWithChariow()" data-i18n="modal.pay">Payer avec Chariow</button>
+      </div>
+      <div class="price-card">
+        <span class="tag" data-i18n="price.pack2.tag">Semaine</span>
+        <h3 data-i18n="price.pack2.title">Pack Semaine</h3>
+        <div class="amount">2500 <span data-i18n="price.currency">FCFA</span></div>
+        <ul><li><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#1F5C46" stroke-width="2.4" fill="none"/></svg><span data-i18n="price.pack2.l1">Recherches illimitées, 7 jours</span></li></ul>
+        <button class="btn btn-ghost btn-block" onclick="payWithChariow()" data-i18n="modal.pay">Payer avec Chariow</button>
+      </div>
+      <div class="price-card">
+        <span class="tag" data-i18n="price.pack3.tag">Mois</span>
+        <h3 data-i18n="price.pack3.title">Pack Mois</h3>
+        <div class="amount">8000 <span data-i18n="price.currency">FCFA</span></div>
+        <ul><li><svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#1F5C46" stroke-width="2.4" fill="none"/></svg><span data-i18n="price.pack3.l1">Recherches illimitées, 30 jours</span></li></ul>
+        <button class="btn btn-ghost btn-block" onclick="payWithChariow()" data-i18n="modal.pay">Payer avec Chariow</button>
+      </div>
+    </div>
+    <div class="pay-note" id="pay-note" data-i18n="modal.paynote">Ceci est une démonstration : l'intégration réelle du paiement Chariow se fera côté serveur (clé API sécurisée, non exposée au navigateur).</div>
+  </div>
+</div>
+
+<script>
+/* ===================== I18N ===================== */
+const dict = {
+  fr: {
+    "nav.home":"Accueil","nav.app":"Itinéraire","nav.dashboard":"Tableau de bord","nav.login":"Connexion",
+    "hero.eyebrow":"Guidage du campus de l'UAC",
+    "hero.title":"Trouvez votre chemin sur le campus, pas à pas.",
+    "hero.lead":"Entrez simplement le lieu où vous voulez aller — EPAC, bibliothèque, amphithéâtre, restaurant universitaire — et laissez votre guide vous accompagner jusqu'à destination.",
+    "hero.cta1":"Chercher un itinéraire","hero.cta2":"Créer un compte",
+    "hero.note":"Les 2 premières recherches sont gratuites.",
+    "how.kicker":"Comment ça marche","how.title":"Trois étapes, aucun détour.",
+    "how.s1.title":"Indiquez votre destination","how.s1.body":"Tapez le nom du lieu — une faculté, un amphi, la bibliothèque — et sélectionnez-le dans la liste.",
+    "how.s2.title":"Recevez l'itinéraire","how.s2.body":"Le chemin le plus court s'affiche sur le plan, avec chaque virage indiqué clairement.",
+    "how.s3.title":"Suivez votre guide","how.s3.body":"Votre avatar vous annonce chaque étape en temps réel, jusqu'à l'arrivée.",
+    "feat.kicker":"Fonctionnalités","feat.title":"Un compagnon de route pour le campus.",
+    "feat.a.title":"Avatar guide vocal","feat.a.body":"Un personnage vous indique où tourner et vous situe à chaque repère du campus.",
+    "feat.b.title":"Plan interactif","feat.b.body":"Visualisez le chemin le plus court entre votre position et votre destination.",
+    "feat.c.title":"Historique personnel","feat.c.body":"Retrouvez vos anciennes recherches et itinéraires depuis votre tableau de bord.",
+    "price.kicker":"Tarifs","price.title":"Simple, à la recherche.","price.body":"Deux recherches gratuites, puis choisissez un pack pour continuer.",
+    "price.currency":"FCFA","price.select":"Choisir ce pack",
+    "price.free.tag":"Découverte","price.free.title":"Gratuit","price.free.l1":"2 recherches d'itinéraire","price.free.l2":"Guide avatar inclus",
+    "price.pack1.tag":"Le plus choisi","price.pack1.title":"Pack Étudiant","price.pack1.l1":"3 recherches supplémentaires","price.pack1.l2":"Paiement sécurisé Chariow",
+    "price.pack2.tag":"Semaine","price.pack2.title":"Pack Semaine","price.pack2.l1":"Recherches illimitées, 7 jours","price.pack2.l2":"Historique complet",
+    "price.pack3.tag":"Mois","price.pack3.title":"Pack Mois","price.pack3.l1":"Recherches illimitées, 30 jours",
+    "footer.text":"CampusGo — Maquette pour l'Université d'Abomey-Calavi",
+    "auth.tab.login":"Connexion","auth.tab.signup":"Inscription","auth.email":"Adresse e-mail","auth.password":"Mot de passe","auth.name":"Nom complet",
+    "auth.loginbtn":"Se connecter","auth.signupbtn":"Créer mon compte",
+    "auth.noaccount":"Pas encore de compte ?","auth.hasaccount":"Déjà un compte ?",
+    "app.title":"Où voulez-vous aller ?","app.subtitle":"Entrez un lieu du campus pour obtenir le chemin le plus court.",
+    "app.searchph":"Ex: EPAC, Bibliothèque Centrale, Amphi 1000...","app.go":"Itinéraire","app.freeleft":"Recherches gratuites restantes :",
+    "app.you":"Vous","app.guide.name":"Votre guide","app.guide.role":"Vous accompagne pas à pas",
+    "app.guide.empty":"Choisissez une destination pour démarrer le guidage.","app.prev":"Précédent","app.next":"Suivant",
+    "app.pause":"Pause","app.play":"Lecture","app.detail":"Détail de l'itinéraire",
+    "app.depart":"Départ depuis","app.towards":"Continuez vers le","app.straight":"Continuez tout droit",
+    "app.left":"Tournez à gauche","app.right":"Tournez à droite","app.arrived":"Vous êtes arrivé à destination !",
+    "app.almost":"Vous êtes presque arrivé à","app.currently":"Vous êtes actuellement à",
+    "dir.n":"Nord","dir.s":"Sud","dir.e":"Est","dir.o":"Ouest",
+    "app.photolabel":"Vous êtes ici","app.waiting":"Avancez pour continuer votre trajet…",
+    "app.demolabel":"Mode démonstration (avance automatiquement)","app.arriving.title":"Vous êtes arrivé !",
+    "dash.hello":"Bonjour, Aïcha 👋","dash.sub":"Voici un résumé de votre activité sur le campus.","dash.newsearch":"Nouvelle recherche",
+    "dash.stat1":"Recherches ce mois","dash.stat1sub":"+2 depuis la semaine dernière",
+    "dash.stat2":"Pack actif","dash.stat2val":"Pack Étudiant","dash.stat2sub":"2 recherches restantes",
+    "dash.stat3":"Destination la plus visitée","dash.stat3sub":"4 trajets ce mois",
+    "dash.history":"Historique des recherches","dash.th.dest":"Destination","dash.th.date":"Date","dash.th.duration":"Durée",
+    "dash.pack.title":"Votre pack","dash.pack.body":"Pack Étudiant — 2 recherches restantes sur 3.","dash.pack.upgrade":"Changer de pack",
+    "modal.title":"Vous avez utilisé vos recherches gratuites","modal.body":"Choisissez un pack pour continuer à obtenir vos itinéraires sur le campus.",
+    "modal.pay":"Payer avec Chariow","modal.paynote":"Ceci est une démonstration : l'intégration réelle du paiement Chariow se fera côté serveur (clé API sécurisée, non exposée au navigateur)."
+  },
+  en: {
+    "nav.home":"Home","nav.app":"Directions","nav.dashboard":"Dashboard","nav.login":"Log in",
+    "hero.eyebrow":"UAC campus wayfinding",
+    "hero.title":"Find your way across campus, step by step.",
+    "hero.lead":"Just enter where you want to go — EPAC, the library, a lecture hall, the cafeteria — and let your guide walk you there.",
+    "hero.cta1":"Find a route","hero.cta2":"Create an account",
+    "hero.note":"Your first 2 searches are free.",
+    "how.kicker":"How it works","how.title":"Three steps, no detours.",
+    "how.s1.title":"Enter your destination","how.s1.body":"Type the place — a faculty, a lecture hall, the library — and pick it from the list.",
+    "how.s2.title":"Get your route","how.s2.body":"The shortest path appears on the map, with every turn clearly marked.",
+    "how.s3.title":"Follow your guide","how.s3.body":"Your avatar announces each step in real time, until you arrive.",
+    "feat.kicker":"Features","feat.title":"A travel companion for campus.",
+    "feat.a.title":"Voice guide avatar","feat.a.body":"A character tells you where to turn and locates you at every campus landmark.",
+    "feat.b.title":"Interactive map","feat.b.body":"See the shortest path between your position and your destination.",
+    "feat.c.title":"Personal history","feat.c.body":"Find your past searches and routes from your dashboard.",
+    "price.kicker":"Pricing","price.title":"Simple, per search.","price.body":"Two free searches, then pick a pack to keep going.",
+    "price.currency":"FCFA","price.select":"Choose this pack",
+    "price.free.tag":"Discovery","price.free.title":"Free","price.free.l1":"2 route searches","price.free.l2":"Avatar guide included",
+    "price.pack1.tag":"Most popular","price.pack1.title":"Student Pack","price.pack1.l1":"3 extra searches","price.pack1.l2":"Secure Chariow payment",
+    "price.pack2.tag":"Weekly","price.pack2.title":"Week Pack","price.pack2.l1":"Unlimited searches, 7 days","price.pack2.l2":"Full history",
+    "price.pack3.tag":"Monthly","price.pack3.title":"Month Pack","price.pack3.l1":"Unlimited searches, 30 days",
+    "footer.text":"CampusGo — Mockup for the University of Abomey-Calavi",
+    "auth.tab.login":"Log in","auth.tab.signup":"Sign up","auth.email":"Email address","auth.password":"Password","auth.name":"Full name",
+    "auth.loginbtn":"Log in","auth.signupbtn":"Create my account",
+    "auth.noaccount":"No account yet?","auth.hasaccount":"Already have an account?",
+    "app.title":"Where do you want to go?","app.subtitle":"Enter a campus location to get the shortest path.",
+    "app.searchph":"e.g. EPAC, Central Library, Lecture Hall 1000...","app.go":"Get directions","app.freeleft":"Free searches remaining:",
+    "app.you":"You","app.guide.name":"Your guide","app.guide.role":"Walks you through, step by step",
+    "app.guide.empty":"Pick a destination to start guidance.","app.prev":"Previous","app.next":"Next",
+    "app.pause":"Pause","app.play":"Play","app.detail":"Route detail",
+    "app.depart":"Depart from","app.towards":"Head","app.straight":"Continue straight",
+    "app.left":"Turn left","app.right":"Turn right","app.arrived":"You have arrived at your destination!",
+    "app.almost":"You're almost at","app.currently":"You are currently at",
+    "dir.n":"North","dir.s":"South","dir.e":"East","dir.o":"West",
+    "app.photolabel":"You are here","app.waiting":"Keep moving to continue your route…",
+    "app.demolabel":"Demo mode (advances automatically)","app.arriving.title":"You have arrived!",
+    "dash.hello":"Hi, Aïcha 👋","dash.sub":"Here's a summary of your campus activity.","dash.newsearch":"New search",
+    "dash.stat1":"Searches this month","dash.stat1sub":"+2 since last week",
+    "dash.stat2":"Active pack","dash.stat2val":"Student Pack","dash.stat2sub":"2 searches remaining",
+    "dash.stat3":"Most visited destination","dash.stat3sub":"4 trips this month",
+    "dash.history":"Search history","dash.th.dest":"Destination","dash.th.date":"Date","dash.th.duration":"Duration",
+    "dash.pack.title":"Your pack","dash.pack.body":"Student Pack — 2 of 3 searches left.","dash.pack.upgrade":"Change pack",
+    "modal.title":"You've used your free searches","modal.body":"Choose a pack to keep getting directions on campus.",
+    "modal.pay":"Pay with Chariow","modal.paynote":"This is a demo: the real Chariow payment integration will run server-side (API key kept secret, never exposed to the browser)."
+  }
+};
+let currentLang = 'fr';
+function setLang(lang){
+  currentLang = lang;
+  document.getElementById('lang-fr').classList.toggle('active', lang==='fr');
+  document.getElementById('lang-en').classList.toggle('active', lang==='en');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(dict[lang][key]) el.textContent = dict[lang][key];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-ph');
+    if(dict[lang][key]) el.setAttribute('placeholder', dict[lang][key]);
+  });
+  document.documentElement.lang = lang;
+  if(campusNodes.length){ renderStepsList(); showNodeState(currentNodeIdx); }
+}
+
+/* ===================== NAV / VIEWS ===================== */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  ['home','app','dashboard'].forEach(n=>{
+    const btn = document.getElementById('nav-'+n);
+    if(btn) btn.classList.toggle('active', n===id);
+  });
+  window.scrollTo({top:0,behavior:'instant'});
+  if(id==='dashboard') renderHistory();
+}
+function setAuthTab(tab){
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+  document.getElementById('form-login').classList.toggle('active', tab==='login');
+  document.getElementById('form-signup').classList.toggle('active', tab==='signup');
+}
+
+/* ===================== APP: campus locations (real coordinates around UAC, Abomey-Calavi) ===================== */
+const START_POINT = { name:"Entrée principale", lat:6.4489, lng:2.3480 };
+const campusPlaces = {
+  "EPAC — École Polytechnique d'Abomey-Calavi": { lat:6.4508, lng:2.3462 },
+  "FAST — Faculté des Sciences et Techniques": { lat:6.4500, lng:2.3502 },
+  "FLASH — Faculté des Lettres, Arts et Sciences Humaines": { lat:6.4468, lng:2.3492 },
+  "FADESP — Faculté de Droit et de Science Politique": { lat:6.4458, lng:2.3474 },
+  "FASEG — Faculté des Sciences Économiques et de Gestion": { lat:6.4478, lng:2.3458 },
+  "IMSP — Institut de Mathématiques et de Sciences Physiques": { lat:6.4518, lng:2.3488 },
+  "ENEAM": { lat:6.4448, lng:2.3507 },
+  "Bibliothèque Centrale": { lat:6.4492, lng:2.3496 },
+  "Restaurant Universitaire (RU)": { lat:6.4474, lng:2.3507 },
+  "Amphithéâtre 1000 places": { lat:6.4497, lng:2.3470 },
+  "Cité universitaire": { lat:6.4438, lng:2.3459 },
+  "Terrain de sport": { lat:6.4459, lng:2.3522 }
+};
+const locations = Object.keys(campusPlaces);
+
+function renderSuggestions(query){
+  const list = document.getElementById('suggest-list');
+  const q = (query||'').toLowerCase().trim();
+  const matches = q ? locations.filter(l=>l.toLowerCase().includes(q)) : locations;
+  if(!matches.length){ list.classList.remove('show'); list.innerHTML=''; return; }
+  list.innerHTML = matches.map(l=>`<div class="suggest-item" onclick="pickLocation('${l.replace(/'/g,"\\'")}')"><span>${l}</span></div>`).join('');
+  list.classList.add('show');
+}
+function pickLocation(name){
+  document.getElementById('dest-input').value = name;
+  document.getElementById('suggest-list').classList.remove('show');
+}
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.search-row')) document.getElementById('suggest-list').classList.remove('show');
+});
+
+/* ===================== APP: free search limit ===================== */
+let freeSearchesUsed = 0;
+const FREE_LIMIT = 2;
+function updateDots(){
+  document.querySelectorAll('#dot-row .dot').forEach((d,i)=>{
+    d.classList.toggle('used', i < freeSearchesUsed);
+  });
+}
+updateDots();
+
+function startItinerary(){
+  const dest = document.getElementById('dest-input').value.trim();
+  if(!dest || !campusPlaces[dest]) return;
+  if(freeSearchesUsed >= FREE_LIMIT){
+    openModal();
+    return;
+  }
+  freeSearchesUsed++;
+  updateDots();
+  buildRoute(dest);
+  addHistoryEntry(dest);
+}
+
+/* ===================== Self-drawn campus map + guided journey ===================== */
+let campusNodes = [];         // [start, landmark1, landmark2, destination]
+let currentNodeIdx = 0;       // last reached node
+let travelToken = 0;          // cancels in-flight timers/animations when route rebuilds or mode changes
+let gpsMode = 'demo';         // 'demo' | 'real'
+let watchId = null;
+let photoHideTimer = null;
+
+const LANDMARK_CANDIDATES = ["Bibliothèque Centrale","Amphithéâtre 1000 places","Restaurant Universitaire (RU)"];
+const GPS_THRESHOLD_M = 25;   // how close the real device must get to advance
+const DEMO_WALK_DELAY = 2600; // simulated "time to walk" before demo mode advances
+
+function haversine(a, b){
+  const R = 6371000;
+  const toRad = d => d*Math.PI/180;
+  const dLat = toRad(b.lat-a.lat), dLng = toRad(b.lng-a.lng);
+  const h = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function bearingDir(a, b){
+  const dLat = b.lat-a.lat, dLng = b.lng-a.lng;
+  if(Math.abs(dLat) > Math.abs(dLng)) return dLat > 0 ? dict[currentLang]['dir.n'] : dict[currentLang]['dir.s'];
+  return dLng > 0 ? dict[currentLang]['dir.e'] : dict[currentLang]['dir.o'];
+}
+function turnAt(prev, corner, next){
+  const v1 = { x: corner.lng-prev.lng, y: corner.lat-prev.lat };
+  const v2 = { x: next.lng-corner.lng, y: next.lat-corner.lat };
+  const cross = v1.x*v2.y - v1.y*v2.x;
+  return cross > 0 ? 'left' : 'right';
+}
+function pickLandmarks(destName){
+  const pool = LANDMARK_CANDIDATES.filter(l => l !== destName);
+  if(pool.length < 2){
+    Object.keys(campusPlaces).forEach(k=>{ if(k!==destName && !pool.includes(k)) pool.push(k); });
+  }
+  return [pool[0], pool[1]];
+}
+function buildMessage(node, idx, total, destShortName){
+  if(idx === 0){
+    const dir = bearingDir(node, campusNodes[1]);
+    return `${dict[currentLang]['app.depart']} ${node.name}. ${dict[currentLang]['app.towards']} ${dir}.`;
+  }
+  if(idx === total-1){
+    return currentLang==='fr' ? `Vous êtes arrivé à ${destShortName} ! 🎉` : `You have arrived at ${destShortName}! 🎉`;
+  }
+  const turnPhrase = node.turn==='left' ? dict[currentLang]['app.left'] : dict[currentLang]['app.right'];
+  return currentLang==='fr'
+    ? `${dict[currentLang]['app.currently']} ${node.name}. ${turnPhrase}, continuons notre trajet vers ${destShortName}.`
+    : `${dict[currentLang]['app.currently']} ${node.name}. ${turnPhrase}, let's continue toward ${destShortName}.`;
+}
+
+function buildRoute(destName){
+  travelToken++; // cancel anything from a previous search
+  clearGeoWatch();
+  if(photoHideTimer) clearTimeout(photoHideTimer);
+
+  const dest = campusPlaces[destName];
+  const shortName = destName.split('—')[0].trim();
+  const [lm1Name, lm2Name] = pickLandmarks(destName);
+
+  campusNodes = [
+    { lat:START_POINT.lat, lng:START_POINT.lng, name:START_POINT.name, key:'start' },
+    { lat:campusPlaces[lm1Name].lat, lng:campusPlaces[lm1Name].lng, name:lm1Name.split('—')[0].trim(), key:'landmark' },
+    { lat:campusPlaces[lm2Name].lat, lng:campusPlaces[lm2Name].lng, name:lm2Name.split('—')[0].trim(), key:'landmark' },
+    { lat:dest.lat, lng:dest.lng, name:shortName, key:'dest' }
+  ];
+  campusNodes[1].turn = turnAt(campusNodes[0], campusNodes[1], campusNodes[2]);
+  campusNodes[2].turn = turnAt(campusNodes[1], campusNodes[2], campusNodes[3]);
+  campusNodes.forEach((n,i)=>{ n.message = buildMessage(n, i, campusNodes.length, shortName); n.legDist = i<campusNodes.length-1 ? Math.round(haversine(n, campusNodes[i+1])) : 0; });
+
+  currentNodeIdx = 0;
+  document.getElementById('guide-empty').style.display = 'none';
+  document.getElementById('map-stage').style.display = 'block';
+
+  drawSvg(campusNodes);
+  renderStepsList();
+  showNodeState(0);
+
+  gpsMode = document.getElementById('gps-toggle').checked ? 'demo' : 'real';
+  if(gpsMode === 'real') ensureGeoWatch();
+  startJourneyFromNode(0, travelToken);
+}
+
+/* ---- self-drawn SVG map (no external tiles: reliable, works offline) ---- */
+function computeBounds(nodes){
+  const lats = nodes.map(n=>n.lat), lngs = nodes.map(n=>n.lng);
+  return { minLat:Math.min(...lats), maxLat:Math.max(...lats), minLng:Math.min(...lngs), maxLng:Math.max(...lngs) };
+}
+function project(node, bounds){
+  const m = 100, w = 800-2*m, h = 600-2*m;
+  const lngSpan = (bounds.maxLng-bounds.minLng) || 0.0005;
+  const latSpan = (bounds.maxLat-bounds.minLat) || 0.0005;
+  return {
+    x: m + ((node.lng-bounds.minLng)/lngSpan) * w,
+    y: m + (1-((node.lat-bounds.minLat)/latSpan)) * h
+  };
+}
+function drawSvg(nodes){
+  const bounds = computeBounds(nodes);
+  nodes.forEach(n=>{ const p = project(n, bounds); n.px = p.x; n.py = p.y; });
+  const routePoints = nodes.map(n=>`${n.px},${n.py}`).join(' ');
+  let markers = '';
+  nodes.forEach((n,i)=>{
+    if(i===0){
+      markers += `<circle cx="${n.px}" cy="${n.py}" r="8" fill="#1B7F6E" stroke="#10131A" stroke-width="2"/>`;
+      markers += `<text x="${n.px}" y="${n.py-16}" text-anchor="middle" fill="#B7BDC6" font-family="Inter" font-size="11">${dict[currentLang]['app.you']}</text>`;
+    } else if(i===nodes.length-1){
+      markers += `<g transform="translate(${n.px},${n.py}) rotate(-45)"><rect x="-13" y="-26" width="26" height="26" rx="13" fill="#FF7A33" stroke="#fff" stroke-width="2"/></g>`;
+      markers += `<text x="${n.px}" y="${n.py-40}" text-anchor="middle" fill="#F2F0EA" font-family="Space Grotesk" font-size="13" font-weight="700">${n.name}</text>`;
+    } else {
+      markers += `<circle cx="${n.px}" cy="${n.py}" r="12" fill="#1B7F6E" stroke="#fff" stroke-width="2"/>`;
+      markers += `<text x="${n.px}" y="${n.py+4}" text-anchor="middle" fill="#fff" font-family="Space Grotesk" font-size="10" font-weight="700">0${i}</text>`;
+    }
+  });
+  const start = nodes[0];
+  document.getElementById('campus-svg').innerHTML = `
+    <rect x="0" y="0" width="800" height="600" fill="#10131A"/>
+    <g opacity=".14" fill="#fff">
+      <rect x="60" y="440" width="90" height="60" rx="4"/>
+      <rect x="620" y="70" width="110" height="70" rx="4"/>
+      <rect x="140" y="90" width="70" height="50" rx="4"/>
+      <rect x="560" y="440" width="80" height="70" rx="4"/>
+      <rect x="330" y="500" width="60" height="40" rx="4"/>
+    </g>
+    <polyline points="${routePoints}" fill="none" stroke="#FF7A33" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${markers}
+    <g id="avatar-g" transform="translate(${start.px},${start.py})">
+      <circle r="15" fill="#FF7A33" stroke="#10131A" stroke-width="3"/>
+      <text y="5" text-anchor="middle" font-size="15">🤖</text>
+    </g>
+  `;
+}
+
+function renderStepsList(){
+  const box = document.getElementById('itin-steps');
+  box.innerHTML = campusNodes.map((n,i)=>`
+    <div class="step-row ${i===currentNodeIdx?'current':''} ${i<currentNodeIdx?'done':''}" data-idx="${i}">
+      ${turnIconSvg(i===0?'straight': (i===campusNodes.length-1?'arrive':n.turn))}
+      <div>${n.message}</div>
+    </div>`).join('');
+}
+function turnIconSvg(turn){
+  const icons = {
+    left: `<svg class="turn-icon" viewBox="0 0 24 24" fill="none"><path d="M9 5 L4 10 L9 15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 10h9a6 6 0 0 1 6 6v3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`,
+    right: `<svg class="turn-icon" viewBox="0 0 24 24" fill="none"><path d="M15 5 L20 10 L15 15" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 10H11a6 6 0 0 0-6 6v3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`,
+    straight: `<svg class="turn-icon" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M12 5l-5 5M12 5l5 5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    arrive: `<svg class="turn-icon" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+  };
+  return icons[turn] || icons.straight;
+}
+
+/* ---- the message + a reassuring photo of the place appear on their own, in sync with arrival ---- */
+function showNodeState(idx){
+  const node = campusNodes[idx];
+  const isLast = idx === campusNodes.length-1;
+  document.getElementById('instr-title').textContent = node.message;
+  document.getElementById('instr-sub').textContent = isLast
+    ? (currentLang==='fr' ? 'Trajet terminé' : 'Route finished')
+    : (currentLang==='fr' ? `${node.legDist} m jusqu'au prochain repère` : `${node.legDist} m to the next landmark`);
+
+  const totalDist = campusNodes.reduce((a,n)=>a+n.legDist,0);
+  const minutes = Math.max(1, Math.round(totalDist/70));
+  document.getElementById('stat-distance').textContent = totalDist + ' m';
+  document.getElementById('stat-duration').textContent = minutes + ' min';
+  document.getElementById('stat-steps').textContent = campusNodes.length + (currentLang==='fr' ? ' repères' : ' landmarks');
+
+  const dots = document.getElementById('progress-dots');
+  dots.innerHTML = campusNodes.slice(1).map((_,i)=>`<span class="${i < idx ?'done':''}"></span>`).join('');
+
+  renderStepsList();
+  const activeEl = document.querySelector('.step-row.current');
+  if(activeEl) activeEl.scrollIntoView({ block:'nearest', behavior:'smooth' });
+
+  showPhoto(node, { arrival:isLast, persist:isLast });
+  document.getElementById('waiting-row').style.display = isLast ? 'none' : 'flex';
+}
+function showPhoto(node, opts={}){
+  const card = document.getElementById('photo-card');
+  const visual = document.getElementById('photo-visual');
+  const nameEl = document.getElementById('photo-name');
+  const labelEl = card.querySelector('.pc-label');
+  nameEl.textContent = node.name;
+  labelEl.textContent = opts.arrival ? dict[currentLang]['app.arriving.title'] : dict[currentLang]['app.photolabel'];
+  visual.innerHTML = `<span style="font-size:42px">${opts.arrival ? '🎓' : (node.key==='start' ? '🚏' : '📍')}</span>`;
+  card.classList.add('show');
+  if(photoHideTimer) clearTimeout(photoHideTimer);
+  if(!opts.persist){
+    photoHideTimer = setTimeout(()=>{ card.classList.remove('show'); }, 3200);
+  }
+}
+
+/* ---- movement-gated progression: nothing advances until the person actually moves ---- */
+function animateAvatarPx(fromNode, toNode, duration, token){
+  return new Promise(resolve=>{
+    const g = document.getElementById('avatar-g');
+    const t0 = performance.now();
+    function frame(now){
+      if(token !== travelToken){ resolve(); return; }
+      const t = Math.min(1, (now-t0)/duration);
+      const x = fromNode.px + (toNode.px-fromNode.px)*t;
+      const y = fromNode.py + (toNode.py-fromNode.py)*t;
+      if(g) g.setAttribute('transform', `translate(${x},${y})`);
+      if(t < 1) requestAnimationFrame(frame); else resolve();
+    }
+    requestAnimationFrame(frame);
+  });
+}
+let advancing = false;
+function travelLeg(fromIdx, token){
+  if(token !== travelToken || advancing) return;
+  advancing = true;
+  const fromNode = campusNodes[fromIdx], toNode = campusNodes[fromIdx+1];
+  const pxDist = Math.hypot(toNode.px-fromNode.px, toNode.py-fromNode.py);
+  const duration = Math.max(500, Math.min(1800, pxDist*4));
+  animateAvatarPx(fromNode, toNode, duration, token).then(()=>{
+    advancing = false;
+    if(token !== travelToken) return;
+    currentNodeIdx = fromIdx+1;
+    showNodeState(currentNodeIdx); // message + photo appear by themselves, right as we arrive
+    if(currentNodeIdx < campusNodes.length-1){
+      startJourneyFromNode(currentNodeIdx, token);
+    } else {
+      clearGeoWatch();
+    }
+  });
+}
+function startJourneyFromNode(idx, token){
+  if(token !== travelToken) return;
+  if(idx >= campusNodes.length-1) return;
+  document.getElementById('waiting-row').style.display = 'flex';
+  document.getElementById('waiting-text').textContent = dict[currentLang]['app.waiting'];
+  if(gpsMode === 'demo'){
+    setTimeout(()=>{ if(token===travelToken) travelLeg(idx, token); }, DEMO_WALK_DELAY);
+  }
+  // in 'real' mode, ensureGeoWatch()'s position callback triggers travelLeg() once close enough
+}
+
+function ensureGeoWatch(){
+  if(watchId != null || !navigator.geolocation){
+    if(!navigator.geolocation){ document.getElementById('gps-toggle').checked = true; gpsMode = 'demo'; }
+    return;
+  }
+  watchId = navigator.geolocation.watchPosition(pos=>{
+    if(gpsMode !== 'real' || advancing) return;
+    const target = campusNodes[currentNodeIdx+1];
+    if(!target) return;
+    const d = Math.round(haversine({lat:pos.coords.latitude, lng:pos.coords.longitude}, target));
+    const hint = document.getElementById('waiting-text');
+    if(hint) hint.textContent = (currentLang==='fr' ? `Distance restante : ${d} m` : `Distance left: ${d} m`);
+    if(d < GPS_THRESHOLD_M) travelLeg(currentNodeIdx, travelToken);
+  }, ()=>{
+    // permission denied or unavailable — fall back to demo mode so the flow still works
+    document.getElementById('gps-toggle').checked = true;
+    gpsMode = 'demo';
+    startJourneyFromNode(currentNodeIdx, travelToken);
+  }, { enableHighAccuracy:true, maximumAge:4000, timeout:8000 });
+}
+function clearGeoWatch(){
+  if(watchId != null && navigator.geolocation){ navigator.geolocation.clearWatch(watchId); }
+  watchId = null;
+}
+function onGpsToggle(isDemo){
+  gpsMode = isDemo ? 'demo' : 'real';
+  travelToken++; // cancel whatever was waiting under the previous mode
+  clearGeoWatch();
+  if(!campusNodes.length) return;
+  if(gpsMode === 'real') ensureGeoWatch();
+  if(currentNodeIdx < campusNodes.length-1) startJourneyFromNode(currentNodeIdx, travelToken);
+}
+
+/* ===================== DASHBOARD history ===================== */
+let historyData = [
+  { dest:'EPAC', date:'08/09/2026', duration:'6 min' },
+  { dest:'Bibliothèque Centrale', date:'05/09/2026', duration:'4 min' },
+  { dest:'Restaurant Universitaire', date:'01/09/2026', duration:'9 min' }
+];
+function addHistoryEntry(dest){
+  const shortName = dest.split('—')[0].trim();
+  historyData.unshift({ dest:shortName, date:new Date().toLocaleDateString('fr-FR'), duration: (Math.floor(Math.random()*8)+3)+' min' });
+}
+function renderHistory(){
+  document.getElementById('history-body').innerHTML = historyData.map(h=>
+    `<tr><td>${h.dest}</td><td>${h.date}</td><td>${h.duration}</td></tr>`
+  ).join('');
+}
+renderHistory();
+
+/* ===================== MODAL / PAYMENT ===================== */
+function openModal(){ document.getElementById('modal').classList.add('show'); }
+function closeModal(){ document.getElementById('modal').classList.remove('show'); document.getElementById('pay-note').classList.remove('show'); }
+function payWithChariow(){
+  document.getElementById('pay-note').classList.add('show');
+}
+</script>
+</body>
+</html>

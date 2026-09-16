@@ -1,0 +1,14 @@
+/* CampusGo — styles globaux.
+   TODO (Personne C) : porter ici les design tokens (couleurs, typo, radius)
+   déjà définis dans la maquette HTML (campusgo-maquette.html), en variables CSS. */
+
+:root {
+  --ink: #16241E;
+  --paper: #F6F5F0;
+  --forest: #1F5C46;
+  --amber: #E4A94A;
+  --route-orange: #FF7A33;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Inter', sans-serif; background: var(--paper); color: var(--ink); }

@@ -1,0 +1,13 @@
+# Config Supabase CLI locale — voir https://supabase.com/docs/guides/cli
+project_id = "campusgo"
+
+[api]
+enabled = true
+port = 54321
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323

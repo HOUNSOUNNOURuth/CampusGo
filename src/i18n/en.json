@@ -1,0 +1,12 @@
+{
+  "nav.home": "Home",
+  "nav.app": "Directions",
+  "nav.dashboard": "Dashboard",
+  "nav.login": "Log in",
+  "app.depart": "Depart from",
+  "app.towards": "Head",
+  "app.left": "Turn left",
+  "app.right": "Turn right",
+  "app.currently": "You are currently at",
+  "app.waiting": "Keep moving to continue your route…"
+}

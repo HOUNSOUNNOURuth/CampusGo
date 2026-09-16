@@ -1,0 +1,12 @@
+{
+  "nav.home": "Accueil",
+  "nav.app": "Itinéraire",
+  "nav.dashboard": "Tableau de bord",
+  "nav.login": "Connexion",
+  "app.depart": "Départ depuis",
+  "app.towards": "Continuez vers le",
+  "app.left": "Tournez à gauche",
+  "app.right": "Tournez à droite",
+  "app.currently": "Vous êtes actuellement à",
+  "app.waiting": "Avancez pour continuer votre trajet…"
+}
