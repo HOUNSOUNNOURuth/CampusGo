@@ -1,28 +1,52 @@
 import { useEffect, useRef, useState } from 'react';
 
-// TODO (Personne B) : porter ici la logique de campusgo-maquette.html
-// (fonctions ensureGeoWatch / clearGeoWatch / onGpsToggle du prototype).
-//
-// Usage prévu :
-//   const { position, error, mode, setMode } = useGeolocation();
-//   - mode 'demo'  -> ne lit pas le GPS, le composant appelant avance par minuterie
-//   - mode 'real'  -> watchPosition() réel, renvoie position à chaque mise à jour
-export function useGeolocation({ enabled = false } = {}) {
+/**
+ * Suit la position GPS de l'utilisateur en continu tant que `enabled` est vrai.
+ * Retourne { position, error }.
+ *   position: { lat, lng, accuracy } | null
+ *   error: 'unsupported' | 'denied' | 'unavailable' | null
+ */
+export default function useGeolocation({ enabled = false, highAccuracy = true, maximumAge = 4000, timeout = 8000 } = {}) {
   const [position, setPosition] = useState(null);
   const [error, setError] = useState(null);
-  const watchId = useRef(null);
+  const watchIdRef = useRef(null);
 
   useEffect(() => {
-    if (!enabled || !navigator.geolocation) return;
-    watchId.current = navigator.geolocation.watchPosition(
-      (pos) => setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      (err) => setError(err),
-      { enableHighAccuracy: true, maximumAge: 4000, timeout: 8000 }
+    if (!enabled) {
+      if (watchIdRef.current != null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+      watchIdRef.current = null;
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      setError('unsupported');
+      return;
+    }
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        setError(null);
+        setPosition({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy
+        });
+      },
+      (err) => {
+        setError(err.code === 1 ? 'denied' : 'unavailable');
+      },
+      { enableHighAccuracy: highAccuracy, maximumAge, timeout }
     );
+
     return () => {
-      if (watchId.current != null) navigator.geolocation.clearWatch(watchId.current);
+      if (watchIdRef.current != null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
     };
-  }, [enabled]);
+  }, [enabled, highAccuracy, maximumAge, timeout]);
 
   return { position, error };
 }
