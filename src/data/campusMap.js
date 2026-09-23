@@ -11,50 +11,47 @@ export const LANDMARK_CANDIDATES = [
   "Restaurant Universitaire (RU)"
 ];
 
-const DIR_LABELS = { N: 'nord', S: 'sud', E: 'est', O: 'ouest' };
+const DIR_KEY = { N: 'dir.n', S: 'dir.s', E: 'dir.e', O: 'dir.o' };
 
 function shortName(fullName) {
   return fullName.split('—')[0].trim();
 }
 
 function pickLandmarks(destName, placesByName) {
-  // on ignore un candidat s'il n'existe pas réellement dans `places`
-  // (évite un crash si la liste chargée diffère de LANDMARK_CANDIDATES)
   const pool = LANDMARK_CANDIDATES.filter((l) => l !== destName && placesByName[l]);
   if (pool.length < 2) {
     Object.keys(placesByName).forEach((k) => {
       if (k !== destName && !pool.includes(k)) pool.push(k);
     });
   }
-  // pas assez de lieux disponibles pour construire un trajet à 4 nœuds
   return pool.length >= 2 ? [pool[0], pool[1]] : null;
 }
 
-// TODO (i18n) : ces messages sont en français en dur. Une fois les clés
-// confirmées dans src/i18n/fr.json et en.json, les remplacer par t('app.xxx').
-function attachMessages(nodes) {
-  const destShort = nodes[nodes.length - 1].name;
+function attachMessages(nodes, t) {
   nodes.forEach((n, i) => {
     if (i === 0) {
-      const dir = DIR_LABELS[bearingDir(n, nodes[1])];
-      n.message = `Départ depuis ${n.name}. Continuez vers le ${dir}.`;
+      const dir = t(DIR_KEY[bearingDir(n, nodes[1])]);
+      n.message = `${t('app.depart')} ${n.name}. ${t('app.towards')} ${dir}.`;
     } else if (i === nodes.length - 1) {
-      n.message = `Vous êtes arrivé à ${n.name} ! 🎉`;
+      n.message = `${t('app.arrived_prefix')} ${n.name} ! 🎉`;
     } else {
-      const turnPhrase = n.turn === 'left' ? 'Tournez à gauche' : 'Tournez à droite';
-      n.message = `Vous êtes actuellement à ${n.name}. ${turnPhrase}, continuons notre trajet vers ${destShort}.`;
+      const turnPhrase = n.turn === 'left' ? t('app.left') : t('app.right');
+      n.message = `${t('app.currently')} ${n.name}. ${turnPhrase}, continuons notre trajet vers ${nodes[nodes.length - 1].name}.`;
     }
   });
 }
 
 /**
  * Construit les 4 nœuds du trajet (départ, 2 repères, destination),
- * avec virage (turn), distance (legDist, m) et message texte calculés.
+ * avec virage (turn), distance (legDist, m) et message texte (i18n).
+ * Les coordonnées restent en lat/lng — c'est Leaflet qui gère la projection
+ * à l'écran, plus besoin de calculer des coordonnées pixels ici.
  *
  * @param {string} destName - nom exact du lieu, tel que dans `places`
  * @param {Array<{name:string,lat:number,lng:number}> | Object} places
+ * @param {(key: string) => string} t - fonction de traduction (useI18n().t)
  */
-export function buildRouteNodes(destName, places) {
+export function buildRouteNodes(destName, places, t) {
   const placesByName = Array.isArray(places)
     ? Object.fromEntries(places.map((p) => [p.name, p]))
     : places;
@@ -82,34 +79,7 @@ export function buildRouteNodes(destName, places) {
     n.legDist = i < nodes.length - 1 ? Math.round(haversine(n, nodes[i + 1])) : 0;
   });
 
-  attachMessages(nodes);
+  attachMessages(nodes, t);
 
   return nodes;
-}
-
-export function computeBounds(nodes) {
-  const lats = nodes.map((n) => n.lat);
-  const lngs = nodes.map((n) => n.lng);
-  return {
-    minLat: Math.min(...lats),
-    maxLat: Math.max(...lats),
-    minLng: Math.min(...lngs),
-    maxLng: Math.max(...lngs)
-  };
-}
-
-// Projection lat/lng -> coordonnées SVG (viewBox 800x600, marge 100px).
-export function project(node, bounds) {
-  const m = 100, w = 800 - 2 * m, h = 600 - 2 * m;
-  const lngSpan = bounds.maxLng - bounds.minLng || 0.0005;
-  const latSpan = bounds.maxLat - bounds.minLat || 0.0005;
-  return {
-    x: m + ((node.lng - bounds.minLng) / lngSpan) * w,
-    y: m + (1 - (node.lat - bounds.minLat) / latSpan) * h
-  };
-}
-
-export function projectNodes(nodes) {
-  const bounds = computeBounds(nodes);
-  return nodes.map((n) => ({ ...n, ...project(n, bounds) }));
 }

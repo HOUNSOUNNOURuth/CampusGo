@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { haversine } from '../utils/geo';
-import { buildRouteNodes, projectNodes } from '../data/campusMap';
+import { buildRouteNodes } from '../data/campusMap';
 import useGeolocation from './useGeolocation';
 
 const GPS_THRESHOLD_M = 25;   // distance (m) à laquelle on considère le repère "atteint" en mode réel
@@ -10,11 +10,12 @@ const PHOTO_DISPLAY_MS = 3200; // durée d'affichage de PhotoCard à un repère 
 /**
  * @param {Object} opts
  * @param {Array|Object} opts.places - lieux du campus (voir campusLocations.js)
+ * @param {(key: string) => string} opts.t - fonction de traduction (useI18n().t)
  */
-export default function useRobotGuide({ places }) {
+export default function useRobotGuide({ places, t }) {
   const [nodes, setNodes] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [avatarPos, setAvatarPos] = useState(null); // { x, y } en coordonnées SVG
+  const [avatarPos, setAvatarPos] = useState(null); // { lat, lng }
   const [mode, setMode] = useState('demo');         // 'demo' | 'real'
   const [distanceHint, setDistanceHint] = useState(null); // distance restante (m) en mode réel
   const [status, setStatus] = useState('idle');     // 'idle' | 'traveling' | 'arrived'
@@ -29,12 +30,12 @@ export default function useRobotGuide({ places }) {
     enabled: mode === 'real' && status === 'traveling'
   });
 
-  // anime l'avatar de nodes[fromIdx] vers nodes[fromIdx+1]
+  // anime l'avatar de nodes[fromIdx] vers nodes[fromIdx+1], en lat/lng
   const animateLeg = useCallback((fromIdx, currentNodes, token) => {
     const fromNode = currentNodes[fromIdx];
     const toNode = currentNodes[fromIdx + 1];
-    const pxDist = Math.hypot(toNode.x - fromNode.x, toNode.y - fromNode.y);
-    const duration = Math.max(500, Math.min(1800, pxDist * 4));
+    const distanceM = fromNode.legDist; // déjà calculé par buildRouteNodes
+    const duration = Math.max(900, Math.min(2800, distanceM * 3));
     const t0 = performance.now();
 
     return new Promise((resolve) => {
@@ -42,8 +43,8 @@ export default function useRobotGuide({ places }) {
         if (token !== tokenRef.current) { resolve(); return; }
         const progress = Math.min(1, (now - t0) / duration);
         setAvatarPos({
-          x: fromNode.x + (toNode.x - fromNode.x) * progress,
-          y: fromNode.y + (toNode.y - fromNode.y) * progress
+          lat: fromNode.lat + (toNode.lat - fromNode.lat) * progress,
+          lng: fromNode.lng + (toNode.lng - fromNode.lng) * progress
         });
         if (progress < 1) requestAnimationFrame(frame);
         else resolve();
@@ -85,17 +86,16 @@ export default function useRobotGuide({ places }) {
     const token = tokenRef.current;
     if (demoTimerRef.current) clearTimeout(demoTimerRef.current);
 
-    const built = buildRouteNodes(destName, places);
+    const built = buildRouteNodes(destName, places, t);
     if (!built.length) return;
-    const projected = projectNodes(built);
 
-    setNodes(projected);
+    setNodes(built);
     setCurrentIdx(0);
-    setAvatarPos({ x: projected[0].x, y: projected[0].y });
+    setAvatarPos({ lat: built[0].lat, lng: built[0].lng });
     setStatus('traveling');
 
-    startLeg(0, token, projected);
-  }, [places, startLeg]);
+    startLeg(0, token, built);
+  }, [places, t, startLeg]);
 
   // mode réel : avance quand le GPS se rapproche du prochain repère
   useEffect(() => {
@@ -148,13 +148,13 @@ export default function useRobotGuide({ places }) {
     nodes,
     currentIdx,
     currentNode,
-    avatarPos,
-    status,       // 'idle' | 'traveling' | 'arrived'
-    mode,         // 'demo' | 'real'
+    avatarPos,     // { lat, lng }
+    status,        // 'idle' | 'traveling' | 'arrived'
+    mode,          // 'demo' | 'real'
     distanceHint,
     totalDistance,
     photoVisible,
-    start,        // start(destName)
-    setGpsMode    // setGpsMode('demo' | 'real')
+    start,         // start(destName)
+    setGpsMode     // setGpsMode('demo' | 'real')
   };
 }

@@ -42,34 +42,27 @@ export default function SearchBar({ places, onSelectDestination }) {
   }
 
   return (
-    <div ref={containerRef} className="search-row" style={{ position: 'relative' }}>
+    <div ref={containerRef} className="search-row">
       <input
         value={query}
         onChange={(e) => { setQuery(e.target.value); setShowSuggestions(true); }}
         onFocus={() => setShowSuggestions(true)}
         placeholder="Ex: EPAC, Bibliothèque Centrale…"
       />
-      <button onClick={handleSubmit}>Itinéraire</button>
+      <button onClick={handleSubmit} className="btn btn-primary">Itinéraire</button>
       {notFound && (
-        <div style={{ color: 'crimson', marginTop: 4 }}>
+        <div style={{ color: 'var(--clay)', marginTop: 6, fontSize: 13 }}>
           Aucun lieu ne correspond à « {query} ». Choisis-en un dans la liste.
         </div>
       )}
 
       {showSuggestions && suggestions.length > 0 && (
-        <div
-          className="suggest-list show"
-          style={{
-            position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10,
-            background: '#fff', border: '1px solid #ccc', maxHeight: 220, overflowY: 'auto'
-          }}
-        >
+        <div className="suggest-list show">
           {suggestions.map((p) => (
             <div
               key={p.name}
               className="suggest-item"
               onClick={() => pickLocation(p.name)}
-              style={{ padding: '6px 10px', cursor: 'pointer' }}
             >
               {p.name}
             </div>

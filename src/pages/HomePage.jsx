@@ -1,6 +1,37 @@
 import { Link } from 'react-router-dom';
+import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { useI18n } from '../i18n/I18nContext.jsx';
 import Reveal from '../components/ui/Reveal.jsx';
+
+// Aperçu satellite du hero — mêmes coordonnées réelles que le module de
+// guidage (Entrée principale -> Bibliothèque Centrale -> EPAC), en lecture
+// seule (pas de zoom/déplacement, c'est une vitrine, pas la vraie carte).
+const HERO_START = { lat: 6.4489, lng: 2.3480 };
+const HERO_MID = { lat: 6.4492, lng: 2.3496 };
+const HERO_DEST = { lat: 6.4508, lng: 2.3462 };
+const HERO_CENTER = [6.4496, 2.3479];
+
+function heroDotIcon(color, delayMs) {
+  return L.divIcon({
+    className: '',
+    html: `<div class="marker" style="animation-delay:${delayMs}ms;width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #0A0F07;box-shadow:0 0 0 2px rgba(255,255,255,.5);"></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+}
+
+function heroPinIcon(delayMs) {
+  return L.divIcon({
+    className: '',
+    // deux divs imbriqués : le style="marker" anime scale/opacity (apparition),
+    // le div interne garde sa rotation fixe (forme de goutte) sans conflit.
+    html: `<div class="marker" style="animation-delay:${delayMs}ms;"><div style="width:22px;height:22px;border-radius:50% 50% 50% 0;background:var(--route-orange);border:2px solid #fff;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,.4);"></div></div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 22]
+  });
+}
 
 export default function HomePage() {
   const { t } = useI18n();
@@ -28,26 +59,24 @@ export default function HomePage() {
 
               <Reveal className="map-art" delay={150}>
                 <div className="sat-badge"><span className="dot" />Vue satellite — en direct</div>
-                <svg className="overlay" viewBox="0 0 400 300" preserveAspectRatio="none">
-                  <rect x="30" y="40" width="46" height="30" rx="4" fill="rgba(255,255,255,.10)" />
-                  <rect x="290" y="150" width="60" height="40" rx="4" fill="rgba(255,255,255,.10)" />
-                  <rect x="230" y="60" width="40" height="26" rx="4" fill="rgba(255,255,255,.08)" />
-                  <path
-                    className="route-path"
-                    d="M 60 260 C 100 220, 90 170, 140 150 S 220 110, 260 60"
-                    fill="none" stroke="var(--route-blue)" strokeWidth="4"
-                    strokeLinecap="round" strokeDasharray="1 10"
+                <MapContainer
+                  center={HERO_CENTER} zoom={17} style={{ height: '100%', width: '100%' }}
+                  zoomControl={false} dragging={false} scrollWheelZoom={false}
+                  doubleClickZoom={false} touchZoom={false} boxZoom={false} keyboard={false}
+                  attributionControl={false}
+                >
+                  <TileLayer
+                    url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                    attribution="Tiles &copy; Esri"
                   />
-                  <circle className="marker" style={{ animationDelay: '150ms' }}
-                    cx="60" cy="260" r="7" fill="var(--route-blue)" stroke="#0A0F07" strokeWidth="2" />
-                  <circle className="marker" style={{ animationDelay: '400ms' }}
-                    cx="140" cy="150" r="6" fill="var(--amber)" stroke="#0A0F07" strokeWidth="2" />
-                  <g className="marker" style={{ animationDelay: '650ms' }} transform="translate(260,60)">
-                    <path d="M0 -16 C9 -16 16 -9 16 0 C16 11 0 26 0 26 C0 26 -16 11 -16 0 C-16 -9 -9 -16 0 -16Z" fill="var(--route-orange)" stroke="#0A0F07" strokeWidth="2" />
-                    <circle cx="0" cy="-2" r="4.5" fill="#0A0F07" />
-                  </g>
-                </svg>
-                <button className="reset-btn" type="button" aria-label="Centrer la carte">⌖</button>
+                  <Polyline
+                    positions={[[HERO_START.lat, HERO_START.lng], [HERO_MID.lat, HERO_MID.lng], [HERO_DEST.lat, HERO_DEST.lng]]}
+                    pathOptions={{ color: '#3D8BFF', weight: 3, dashArray: '1 10', className: 'route-path' }}
+                  />
+                  <Marker position={[HERO_START.lat, HERO_START.lng]} icon={heroDotIcon('#3D8BFF', 150)} />
+                  <Marker position={[HERO_MID.lat, HERO_MID.lng]} icon={heroDotIcon('var(--amber)', 400)} />
+                  <Marker position={[HERO_DEST.lat, HERO_DEST.lng]} icon={heroPinIcon(650)} />
+                </MapContainer>
               </Reveal>
             </div>
           </Reveal>
