@@ -38,48 +38,48 @@ export default function HomePage() {
 
   return (
     <>
-      {/* ---------- Hero ---------- */}
+      {/* ---------- Hero : fond plein cadre (carte satellite) + texte en superposition ---------- */}
       <section className="hero">
         <div className="wrap">
-          <Reveal className="hero-card">
-            <div className="hero-grid">
-              <div>
-                <div className="eyebrow-line">
-                  <span className="dash" />
-                  {t('hero.eyebrow')}
-                </div>
-                <h1>{t('hero.title')}</h1>
-                <p className="lead">{t('hero.lead')}</p>
-                <div className="hero-actions">
-                  <Link to="/itineraire" className="btn btn-primary">{t('hero.cta1')}</Link>
-                  <Link to="/inscription" className="btn btn-ghost">{t('hero.cta2')}</Link>
-                </div>
-                <p className="hero-note">{t('hero.note')}</p>
-              </div>
-
-              <Reveal className="map-art" delay={150}>
-                <div className="sat-badge"><span className="dot" />Vue satellite — en direct</div>
-                <MapContainer
-                  center={HERO_CENTER} zoom={17} style={{ height: '100%', width: '100%' }}
-                  zoomControl={false} dragging={false} scrollWheelZoom={false}
-                  doubleClickZoom={false} touchZoom={false} boxZoom={false} keyboard={false}
-                  attributionControl={false}
-                >
-                  <TileLayer
-                    url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                    attribution="Tiles &copy; Esri"
-                  />
-                  <Polyline
-                    positions={[[HERO_START.lat, HERO_START.lng], [HERO_MID.lat, HERO_MID.lng], [HERO_DEST.lat, HERO_DEST.lng]]}
-                    pathOptions={{ color: '#3D8BFF', weight: 3, dashArray: '1 10', className: 'route-path' }}
-                  />
-                  <Marker position={[HERO_START.lat, HERO_START.lng]} icon={heroDotIcon('#3D8BFF', 150)} />
-                  <Marker position={[HERO_MID.lat, HERO_MID.lng]} icon={heroDotIcon('var(--amber)', 400)} />
-                  <Marker position={[HERO_DEST.lat, HERO_DEST.lng]} icon={heroPinIcon(650)} />
-                </MapContainer>
-              </Reveal>
+          <div className="hero-media">
+            <div className="hero-media-bg">
+              <MapContainer
+                center={HERO_CENTER} zoom={16} style={{ height: '100%', width: '100%' }}
+                zoomControl={false} dragging={false} scrollWheelZoom={false}
+                doubleClickZoom={false} touchZoom={false} boxZoom={false} keyboard={false}
+                attributionControl={false}
+              >
+                <TileLayer
+                  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                  attribution="Tiles &copy; Esri"
+                />
+                <Polyline
+                  positions={[[HERO_START.lat, HERO_START.lng], [HERO_MID.lat, HERO_MID.lng], [HERO_DEST.lat, HERO_DEST.lng]]}
+                  pathOptions={{ color: '#3D8BFF', weight: 4, dashArray: '1 10', className: 'route-path' }}
+                />
+                <Marker position={[HERO_START.lat, HERO_START.lng]} icon={heroDotIcon('#3D8BFF', 150)} />
+                <Marker position={[HERO_MID.lat, HERO_MID.lng]} icon={heroDotIcon('var(--amber)', 400)} />
+                <Marker position={[HERO_DEST.lat, HERO_DEST.lng]} icon={heroPinIcon(650)} />
+              </MapContainer>
             </div>
-          </Reveal>
+
+            <div className="hero-media-overlay" />
+
+            <div className="hero-media-content">
+              <div className="sat-badge"><span className="dot" />Vue satellite — en direct</div>
+              <div className="eyebrow-line">
+                <span className="dash" />
+                {t('hero.eyebrow')}
+              </div>
+              <h1>{t('hero.title')}</h1>
+              <p className="lead">{t('hero.lead')}</p>
+              <div className="hero-actions">
+                <Link to="/itineraire" className="btn btn-primary">{t('hero.cta1')}</Link>
+                <Link to="/inscription" className="btn btn-ghost">{t('hero.cta2')}</Link>
+              </div>
+              <p className="hero-note">{t('hero.note')}</p>
+            </div>
+          </div>
         </div>
       </section>
 
